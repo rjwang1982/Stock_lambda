@@ -1,0 +1,25 @@
+# Lambda Layer 依赖包
+# 这些包会被安装到 Lambda Layer 中，供 Lambda 函数使用
+
+# 数据处理和分析
+pandas>=2.1.0,<3.0.0
+numpy>=1.24.0,<2.0.0
+
+# 股票数据获取
+akshare>=1.12.0
+
+# 数学和科学计算（pandas 依赖）
+pytz>=2023.3
+python-dateutil>=2.8.2
+six>=1.16.0
+
+# 网络请求（akshare 依赖）
+requests>=2.31.0
+urllib3>=1.26.0,<3.0.0
+certifi>=2023.7.22
+
+# JSON 和数据序列化
+simplejson>=3.19.0
+
+# 时间处理
+tzdata>=2023.3

@@ -1,0 +1,385 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Stock Technical Analysis API - Serverless Implementation
+  
+  Provides stock technical analysis services using AWS Lambda and API Gateway,
+  supporting multi-market stock data analysis and technical indicator calculations
+
+# 元数据
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: stock-analysis-api
+    Description: Stock Technical Analysis Lambda API
+    Author: RJ.Wang
+    SpdxLicenseId: MIT
+    LicenseUrl: LICENSE
+    ReadmeUrl: README.md
+    Labels: ['stock', 'analysis', 'lambda', 'api', 'serverless']
+    HomePageUrl: https://github.com/rjwang1982/StrockDify
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/rjwang1982/StrockDify
+
+# 全局配置
+Globals:
+  Function:
+    Timeout: 300
+    MemorySize: 512
+    Runtime: python3.13
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        LOG_LEVEL: !Ref LogLevel
+        VALID_TOKENS: !Ref ValidTokens
+        MA_SHORT_PERIOD: !Ref MAShortPeriod
+        MA_MEDIUM_PERIOD: !Ref MAMediumPeriod
+        MA_LONG_PERIOD: !Ref MALongPeriod
+        RSI_PERIOD: !Ref RSIPeriod
+    Tags:
+      Project: StockAnalysisAPI
+      Environment: !Ref Environment
+      ManagedBy: SAM
+
+# 参数
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    Description: Deployment environment
+    AllowedValues:
+      - dev
+      - test
+      - prod
+  
+  LogLevel:
+    Type: String
+    Default: INFO
+    Description: Log level
+    AllowedValues:
+      - DEBUG
+      - INFO
+      - WARNING
+      - ERROR
+  
+  ValidTokens:
+    Type: String
+    Default: xue123,xue1234
+    Description: Valid authentication tokens (comma separated)
+    NoEcho: true
+  
+  MAShortPeriod:
+    Type: Number
+    Default: 5
+    Description: Short-term moving average period
+    MinValue: 1
+    MaxValue: 50
+  
+  MAMediumPeriod:
+    Type: Number
+    Default: 20
+    Description: Medium-term moving average period
+    MinValue: 1
+    MaxValue: 100
+  
+  MALongPeriod:
+    Type: Number
+    Default: 60
+    Description: Long-term moving average period
+    MinValue: 1
+    MaxValue: 200
+  
+  RSIPeriod:
+    Type: Number
+    Default: 14
+    Description: RSI indicator period
+    MinValue: 1
+    MaxValue: 50
+
+# 条件
+Conditions:
+  IsProduction: !Equals [!Ref Environment, prod]
+  IsDebugMode: !Equals [!Ref LogLevel, DEBUG]
+
+# 资源定义
+Resources:
+  # Lambda execution role
+  StockAnalysisExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-lambda-execution-role"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws-cn:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CloudWatchLogsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                Resource: !Sub "arn:aws-cn:logs:${AWS::Region}:${AWS::AccountId}:*"
+        - PolicyName: SQSPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource: !GetAtt DeadLetterQueue.Arn
+      Tags:
+        - Key: Project
+          Value: StockAnalysisAPI
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Lambda 函数
+  StockAnalysisFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-stock-analysis"
+      CodeUri: src/
+      Handler: lambda_function.lambda_handler
+      Description: !Sub "Stock Technical Analysis Lambda Function - ${Environment} Environment"
+      Role: !GetAtt StockAnalysisExecutionRole.Arn
+      Layers:
+        - !Ref StockAnalysisLayer
+      # ReservedConcurrency: !If [IsProduction, 10, 5]
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !GetAtt DeadLetterQueue.Arn
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          FUNCTION_VERSION: !Ref AWS::StackName
+      Events:
+        # API Gateway 集成 - 代理所有路径
+        ProxyApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StockAnalysisApiGateway
+            Path: /{proxy+}
+            Method: ANY
+        # 根路径
+        RootApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StockAnalysisApiGateway
+            Path: /
+            Method: ANY
+
+  # Lambda Layer（依赖包）
+  StockAnalysisLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "${AWS::StackName}-dependencies"
+      Description: Stock Analysis Dependencies (pandas, akshare, numpy)
+      ContentUri: layers/dependencies/
+      CompatibleRuntimes:
+        - python3.13
+      CompatibleArchitectures:
+        - arm64
+      RetentionPolicy: Delete
+
+
+  # 死信队列
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${AWS::StackName}-dlq"
+      MessageRetentionPeriod: 1209600  # 14 days
+      Tags:
+        - Key: Project
+          Value: StockAnalysisAPI
+        - Key: Environment
+          Value: !Ref Environment
+
+  # API Gateway
+  StockAnalysisApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${AWS::StackName}-api"
+      StageName: !Ref Environment
+      Description: Stock Technical Analysis REST API
+      EndpointConfiguration:
+        Type: REGIONAL
+      # CORS 配置
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+      # 访问日志配置 - 暂时禁用，需要账户级别的CloudWatch Logs角色配置
+      # AccessLogSetting:
+      #   DestinationArn: !GetAtt ApiGatewayLogGroup.Arn
+      #   Format: !Sub |
+      #     {
+      #       "requestId": "$context.requestId",
+      #       "requestTime": "$context.requestTime",
+      #       "httpMethod": "$context.httpMethod",
+      #       "path": "$context.path",
+      #       "resourcePath": "$context.resourcePath",
+      #       "status": "$context.status",
+      #       "responseLength": "$context.responseLength",
+      #       "responseTime": "$context.responseTime",
+      #       "sourceIp": "$context.identity.sourceIp",
+      #       "userAgent": "$context.identity.userAgent",
+      #       "error": "$context.error.message",
+      #       "integrationError": "$context.integration.error",
+      #       "integrationStatus": "$context.integration.status",
+      #       "integrationLatency": "$context.integration.latency",
+      #       "integrationRequestId": "$context.integration.requestId"
+      #     }
+      # 方法设置 - 简化配置，移除日志设置
+      MethodSettings:
+        - ResourcePath: "/*"
+          HttpMethod: "*"
+          MetricsEnabled: true
+          ThrottlingRateLimit: !If [IsProduction, 100, 50]
+          ThrottlingBurstLimit: !If [IsProduction, 200, 100]
+      # 使用计划和 API 密钥（可选）
+      Auth:
+        DefaultAuthorizer: NONE
+      Tags:
+        Project: StockAnalysisAPI
+        Environment: !Ref Environment
+
+  # CloudWatch 日志组
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-stock-analysis"
+      RetentionInDays: !If [IsProduction, 30, 14]
+
+  # CloudWatch 告警
+  LambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsProduction
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-lambda-errors"
+      AlarmDescription: Lambda Function Error Rate Alarm
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref StockAnalysisFunction
+      TreatMissingData: notBreaching
+
+  LambdaDurationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsProduction
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-lambda-duration"
+      AlarmDescription: Lambda Function Duration Alarm
+      MetricName: Duration
+      Namespace: AWS/Lambda
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 30000  # 30 seconds
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref StockAnalysisFunction
+      TreatMissingData: notBreaching
+
+  ApiGateway4xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsProduction
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-api-4xx-errors"
+      AlarmDescription: API Gateway 4xx Error Alarm
+      MetricName: 4XXError
+      Namespace: AWS/ApiGateway
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ApiName
+          Value: !Sub "${AWS::StackName}-api"
+        - Name: Stage
+          Value: !Ref Environment
+      TreatMissingData: notBreaching
+
+  ApiGateway5xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsProduction
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-api-5xx-errors"
+      AlarmDescription: API Gateway 5xx Error Alarm
+      MetricName: 5XXError
+      Namespace: AWS/ApiGateway
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ApiName
+          Value: !Sub "${AWS::StackName}-api"
+        - Name: Stage
+          Value: !Ref Environment
+      TreatMissingData: notBreaching
+
+# Outputs
+Outputs:
+  StockAnalysisApiUrl:
+    Description: "Stock Analysis API Gateway Endpoint URL"
+    Value: !Sub "https://${StockAnalysisApiGateway}.execute-api.${AWS::Region}.amazonaws.com.cn/${Environment}/"
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiUrl"
+
+  StockAnalysisFunctionArn:
+    Description: "Stock Analysis Lambda Function ARN"
+    Value: !GetAtt StockAnalysisFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-FunctionArn"
+
+  StockAnalysisLayerArn:
+    Description: "Stock Analysis Dependencies Layer ARN"
+    Value: !Ref StockAnalysisLayer
+    Export:
+      Name: !Sub "${AWS::StackName}-LayerArn"
+
+  ApiGatewayId:
+    Description: "API Gateway ID"
+    Value: !Ref StockAnalysisApiGateway
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiId"
+
+  DeadLetterQueueUrl:
+    Description: "Dead Letter Queue URL"
+    Value: !Ref DeadLetterQueue
+    Export:
+      Name: !Sub "${AWS::StackName}-DLQUrl"
+
+  # Test Endpoints
+  HealthCheckUrl:
+    Description: "Health Check Endpoint"
+    Value: !Sub "https://${StockAnalysisApiGateway}.execute-api.${AWS::Region}.amazonaws.com.cn/${Environment}/health"
+
+  TestStockUrl:
+    Description: "Stock Test Endpoint Example"
+    Value: !Sub "https://${StockAnalysisApiGateway}.execute-api.${AWS::Region}.amazonaws.com.cn/${Environment}/test-stock/600519?token=xue123"
+
+  AnalyzeStockUrl:
+    Description: "Stock Analysis Endpoint"
+    Value: !Sub "https://${StockAnalysisApiGateway}.execute-api.${AWS::Region}.amazonaws.com.cn/${Environment}/analyze-stock"

@@ -1,0 +1,38 @@
+# SAM 配置文件
+# 更多配置选项: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html
+
+version = 0.1
+
+[default]
+[default.global]
+[default.global.parameters]
+stack_name = "stock-analysis-api"
+region = "cn-northwest-1"
+profile = "susermt"
+
+[default.build]
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.deploy]
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+s3_prefix = "stock-analysis-api"
+region = "cn-northwest-1"
+profile = "susermt"
+parameter_overrides = [
+    "Environment=prod"
+]
+
+[default.local_start_api]
+[default.local_start_api.parameters]
+warm_containers = "EAGER"
+profile = "susermt"
+
+[default.local_start_lambda]
+[default.local_start_lambda.parameters]
+warm_containers = "EAGER"
+profile = "susermt"

@@ -1,0 +1,54 @@
+{
+  "httpMethod": "GET",
+  "path": "/",
+  "resource": "/",
+  "pathParameters": null,
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "headers": {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "Host": "api.example.com",
+    "User-Agent": "curl/7.68.0",
+    "X-Forwarded-For": "127.0.0.1",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "multiValueHeaders": {
+    "Accept": ["application/json"],
+    "Content-Type": ["application/json"],
+    "Host": ["api.example.com"],
+    "User-Agent": ["curl/7.68.0"],
+    "X-Forwarded-For": ["127.0.0.1"],
+    "X-Forwarded-Port": ["443"],
+    "X-Forwarded-Proto": ["https"]
+  },
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "abcdef123",
+    "protocol": "HTTP/1.1",
+    "httpMethod": "GET",
+    "path": "/prod/",
+    "stage": "prod",
+    "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+    "requestTime": "09/Apr/2015:12:34:56 +0000",
+    "requestTimeEpoch": 1428582896000,
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "accessKey": null,
+      "sourceIp": "127.0.0.1",
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "curl/7.68.0",
+      "user": null
+    },
+    "resourceId": "123456",
+    "resourcePath": "/"
+  },
+  "body": null,
+  "isBase64Encoded": false
+}
