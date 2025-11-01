@@ -89,3 +89,18 @@ desktop.ini
 .kiro/logs/
 .kiro/**/*.tmp
 .kiro/**/*.log
+
+# 图片和媒体文件
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.svg
+*.ico
+*.webp
+
+# 截图文件
+iShot_*
+Screenshot_*
+screen_*
