@@ -100,6 +100,9 @@ desktop.ini
 *.ico
 *.webp
 
+# 但保留项目预览图片
+!preview.png
+
 # 截图文件
 iShot_*
 Screenshot_*
