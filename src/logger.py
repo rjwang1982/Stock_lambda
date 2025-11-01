@@ -6,8 +6,11 @@
 提供结构化的日志记录功能，支持 JSON 格式输出，便于 CloudWatch 日志分析。
 包含请求跟踪、性能监控和错误记录功能。
 
-Author: RJ.Wang (Lambda 适配)
-License: MIT
+作者: RJ.Wang
+邮箱: wangrenjun@gmail.com
+创建时间: 2025-10-31
+版本: 1.0
+许可证: MIT
 """
 
 import json

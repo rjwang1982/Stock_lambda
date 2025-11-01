@@ -1,7 +1,11 @@
 #!/bin/bash
-
 # 部署前验证脚本
 # 检查所有必要的条件和配置
+#
+# 作者: RJ.Wang
+# 邮箱: wangrenjun@gmail.com
+# 创建时间: 2025-10-31
+# 版本: 1.0
 
 set -e
 

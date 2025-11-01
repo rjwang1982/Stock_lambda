@@ -1,7 +1,11 @@
 #!/bin/bash
-
 # 股票分析 Lambda API 部署脚本
 # 支持中国区宁夏部署
+#
+# 作者: RJ.Wang
+# 邮箱: wangrenjun@gmail.com
+# 创建时间: 2025-10-31
+# 版本: 1.0
 
 set -e  # 遇到错误立即退出
 

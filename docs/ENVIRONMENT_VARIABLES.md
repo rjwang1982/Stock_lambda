@@ -1,5 +1,9 @@
 # 环境变量配置指南
 
+**作者：** RJ.Wang  
+**邮箱：** wangrenjun@gmail.com  
+**创建时间：** 2025-10-31
+
 本文档详细说明股票技术分析 Lambda API 的所有环境变量配置选项。
 
 ## 目录
@@ -531,3 +535,11 @@ aws lambda update-function-configuration \
 ---
 
 **注意**: 修改环境变量后，Lambda 函数会自动重启。请确保在低峰时段进行配置变更，并及时验证功能正常。
+
+---
+
+**作者：** RJ.Wang  
+**邮箱：** wangrenjun@gmail.com  
+**文档版本：** v1.0  
+**最后更新：** 2025-10-31  
+**适用于：** AWS Lambda, 环境变量配置, SAM

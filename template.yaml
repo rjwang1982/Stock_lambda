@@ -5,6 +5,11 @@ Description: >
   
   Provides stock technical analysis services using AWS Lambda and API Gateway,
   supporting multi-market stock data analysis and technical indicator calculations
+  
+  作者: RJ.Wang
+  邮箱: wangrenjun@gmail.com
+  创建时间: 2025-10-31
+  版本: 1.0
 
 # 元数据
 Metadata:

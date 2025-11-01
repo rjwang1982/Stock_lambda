@@ -1,5 +1,9 @@
 # 部署指南
 
+**作者：** RJ.Wang  
+**邮箱：** wangrenjun@gmail.com  
+**创建时间：** 2025-10-31
+
 本文档详细说明如何部署股票技术分析 Lambda API 到 AWS 中国区宁夏（cn-northwest-1）。
 
 ## 目录
@@ -465,3 +469,11 @@ rm -rf layers/dependencies/python/
 部署完成后，请参考以下文档：
 - [API 使用指南](API_USAGE.md) - 了解如何使用 API
 - [运维监控指南](OPERATIONS.md) - 了解如何监控和维护系统
+
+---
+
+**作者：** RJ.Wang  
+**邮箱：** wangrenjun@gmail.com  
+**文档版本：** v1.0  
+**最后更新：** 2025-10-31  
+**适用于：** AWS SAM, Lambda 部署, 中国区部署

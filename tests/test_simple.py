@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 简单的本地测试脚本，不依赖 SAM
+
+作者: RJ.Wang
+邮箱: wangrenjun@gmail.com
+创建时间: 2025-10-31
+版本: 1.0
+许可证: MIT
 """
 
 import sys

@@ -1,7 +1,11 @@
 #!/bin/bash
-
 # 构建 Lambda Layer 脚本
 # 使用 Docker 确保 arm64 Linux 兼容性
+#
+# 作者: RJ.Wang
+# 邮箱: wangrenjun@gmail.com
+# 创建时间: 2025-10-31
+# 版本: 1.0
 
 set -e
 

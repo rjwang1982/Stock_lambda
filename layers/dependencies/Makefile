@@ -1,5 +1,10 @@
 # Makefile for building Lambda Layer dependencies
 # This ensures arm64 compatibility for AWS Lambda
+#
+# 作者: RJ.Wang
+# 邮箱: wangrenjun@gmail.com
+# 创建时间: 2025-10-31
+# 版本: 1.0
 
 .PHONY: build-layer clean verify help
 

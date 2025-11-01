@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""测试 Lambda Layer 中的包是否可以正常导入"""
+# -*- coding: utf-8 -*-
+"""
+测试 Lambda Layer 中的包是否可以正常导入
+
+作者: RJ.Wang
+邮箱: wangrenjun@gmail.com
+创建时间: 2025-10-31
+版本: 1.0
+许可证: MIT
+"""
 
 import sys
 import os

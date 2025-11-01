@@ -1,5 +1,10 @@
 # Dockerfile for building Lambda Layer dependencies
 # 用于构建 Lambda Layer 依赖包的 Docker 文件
+#
+# 作者: RJ.Wang
+# 邮箱: wangrenjun@gmail.com
+# 创建时间: 2025-10-31
+# 版本: 1.0
 
 FROM public.ecr.aws/lambda/python:3.13-arm64
 

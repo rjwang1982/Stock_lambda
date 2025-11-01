@@ -6,8 +6,11 @@
 处理 Bearer Token 认证，支持环境变量配置和多种认证场景。
 适配 Lambda 环境，移除 FastAPI 依赖。
 
-Author: RJ.Wang (Lambda 适配)
-License: MIT
+作者: RJ.Wang
+邮箱: wangrenjun@gmail.com
+创建时间: 2025-10-31
+版本: 1.0
+许可证: MIT
 """
 
 import os

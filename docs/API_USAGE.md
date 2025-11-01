@@ -1,5 +1,9 @@
 # API 使用指南
 
+**作者：** RJ.Wang  
+**邮箱：** wangrenjun@gmail.com  
+**创建时间：** 2025-10-31
+
 本文档详细说明如何使用股票技术分析 Lambda API 进行股票数据分析。
 
 ## 目录
@@ -622,3 +626,11 @@ def validate_date_format(date_str):
 ---
 
 **注意**: 本 API 提供的股票分析结果仅供参考，不构成投资建议。投资有风险，决策需谨慎。
+
+---
+
+**作者：** RJ.Wang  
+**邮箱：** wangrenjun@gmail.com  
+**文档版本：** v1.0  
+**最后更新：** 2025-10-31  
+**适用于：** AWS Lambda API, 股票分析, REST API

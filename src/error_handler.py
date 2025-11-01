@@ -6,8 +6,11 @@
 提供统一的错误处理机制，包括错误分类、日志记录和响应构建。
 确保敏感信息不会泄露到客户端。
 
-Author: RJ.Wang (Lambda 适配)
-License: MIT
+作者: RJ.Wang
+邮箱: wangrenjun@gmail.com
+创建时间: 2025-10-31
+版本: 1.0
+许可证: MIT
 """
 
 import logging

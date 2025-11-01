@@ -6,8 +6,11 @@
 处理 API Gateway 事件，路由到对应的处理函数，返回标准响应。
 整合股票分析、认证和响应构建模块。
 
-Author: RJ.Wang (Lambda 适配)
-License: MIT
+作者: RJ.Wang
+邮箱: wangrenjun@gmail.com
+创建时间: 2025-10-31
+版本: 1.0
+许可证: MIT
 """
 
 import json

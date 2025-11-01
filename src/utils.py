@@ -5,8 +5,11 @@
 
 提供通用的工具函数，包括日志配置、数据验证、时间处理等。
 
-Author: RJ.Wang (Lambda 适配)
-License: MIT
+作者: RJ.Wang
+邮箱: wangrenjun@gmail.com
+创建时间: 2025-10-31
+版本: 1.0
+许可证: MIT
 """
 
 import os

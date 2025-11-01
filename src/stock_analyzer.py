@@ -6,8 +6,11 @@
 从原始 FastAPI 应用提取的股票分析逻辑，适配 Lambda 环境。
 保持所有计算逻辑不变，移除 FastAPI 相关依赖。
 
-Author: RJ.Wang (Lambda 适配)
-License: MIT
+作者: RJ.Wang
+邮箱: wangrenjun@gmail.com
+创建时间: 2025-10-31
+版本: 1.0
+许可证: MIT
 """
 
 import os

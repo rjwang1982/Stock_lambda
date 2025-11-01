@@ -6,8 +6,11 @@ API Gateway 响应构建器
 构建符合 API Gateway 格式的 HTTP 响应，支持成功和错误响应。
 处理 CORS、内容类型和状态码。
 
-Author: RJ.Wang (Lambda 适配)
-License: MIT
+作者: RJ.Wang
+邮箱: wangrenjun@gmail.com
+创建时间: 2025-10-31
+版本: 1.0
+许可证: MIT
 """
 
 import json

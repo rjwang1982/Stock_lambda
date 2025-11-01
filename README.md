@@ -1,5 +1,9 @@
 # 股票技术分析 Lambda API
 
+**作者：** RJ.Wang  
+**邮箱：** wangrenjun@gmail.com  
+**创建时间：** 2025-10-31
+
 ![项目预览](iShot_2025-10-31_22.01.13.png)
 
 基于 AWS Lambda 的无服务器股票技术分析 API 服务，提供多市场股票数据分析和技术指标计算功能。
@@ -351,3 +355,11 @@ Stock_lambda/
 ---
 
 **⚡ 基于 AWS 无服务器架构，让股票分析更简单、更高效！**
+
+---
+
+**作者：** RJ.Wang  
+**邮箱：** wangrenjun@gmail.com  
+**文档版本：** v1.0  
+**最后更新：** 2025-10-31  
+**适用于：** AWS Lambda, Python, 股票分析
