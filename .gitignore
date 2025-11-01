@@ -81,3 +81,11 @@ htmlcov/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Kiro 相关文件
+# 保留 steering 文件，但排除可能的临时文件
+.kiro/cache/
+.kiro/temp/
+.kiro/logs/
+.kiro/**/*.tmp
+.kiro/**/*.log
