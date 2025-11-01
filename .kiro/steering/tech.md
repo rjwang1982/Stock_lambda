@@ -52,6 +52,12 @@ sam local invoke StockAnalysisFunction --event events/health-check.json
 sam logs --stack-name stock-analysis-api --profile susermt --tail
 ```
 
+### Terminal Operations & Troubleshooting
+- **Pager Issues**: If terminal gets stuck in `less` or similar pagers (showing help text or long output), press `q` to quit and return to normal command prompt
+- **Git Commands**: Some Git commands may open pagers automatically. Use `q` to exit if the terminal appears frozen
+- **Log Viewing**: Commands like `git log` may use pagers. Press `q` to exit the pager view
+- **Command Recovery**: If a command seems stuck, try pressing `q` first, then `Ctrl+C` if needed
+
 ## Configuration Management
 - **Environment Variables**: Configured via SAM template parameters
 - **Deployment Profiles**: Uses AWS profile `susermt` for China region
