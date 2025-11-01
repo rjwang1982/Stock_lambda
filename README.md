@@ -148,6 +148,18 @@ Content-Type: application/json
 ```
 
 ## 🚀 部署指南
+### 🎯 推荐部署方法（经过验证）
+
+**一键部署脚本**（推荐）:
+```bash
+# 使用经过验证的一键部署脚本
+./scripts/deploy-verified.sh
+```
+
+**详细指南**: 参考 [经过验证的部署指南](docs/DEPLOYMENT_GUIDE_TESTED.md)
+
+### 🔧 手动部署方法
+
 
 ### 前置要求
 
