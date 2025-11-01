@@ -341,22 +341,108 @@ run_post_deploy_tests() {
         --query 'Stacks[0].Outputs[?OutputKey==`StockAnalysisApiUrl`].OutputValue' \
         --output text 2>/dev/null)
     
-    if [ -n "$api_url" ] && [ "$api_url" != "None" ]; then
-        log_info "测试健康检查端点..."
-        if curl -s -f "$api_url/health" > /dev/null; then
-            log_success "健康检查端点测试通过"
-        else
-            log_warning "健康检查端点测试失败"
-        fi
-        
-        log_info "测试根路径端点..."
-        if curl -s -f "$api_url/" > /dev/null; then
-            log_success "根路径端点测试通过"
-        else
-            log_warning "根路径端点测试失败"
-        fi
-    else
+    if [ -z "$api_url" ] || [ "$api_url" = "None" ]; then
         log_warning "跳过端点测试（未找到 API URL）"
+        return 0
+    fi
+    
+    log_info "API URL: $api_url"
+    local test_passed=0
+    local test_total=0
+    
+    # 等待 API Gateway 就绪
+    log_info "等待 API Gateway 就绪..."
+    sleep 10
+    
+    # 测试健康检查端点
+    log_info "测试健康检查端点..."
+    test_total=$((test_total + 1))
+    local health_response=$(curl -s -w "%{http_code}" -o /tmp/health_response.json "$api_url/health" 2>/dev/null)
+    local health_status_code="${health_response: -3}"
+    
+    if [ "$health_status_code" = "200" ]; then
+        log_success "✅ 健康检查端点测试通过 (HTTP $health_status_code)"
+        if command -v python3 &> /dev/null && [ -f /tmp/health_response.json ]; then
+            log_info "响应内容:"
+            python3 -m json.tool /tmp/health_response.json 2>/dev/null | head -10
+        fi
+        test_passed=$((test_passed + 1))
+    else
+        log_error "❌ 健康检查端点测试失败 (HTTP $health_status_code)"
+        if [ -f /tmp/health_response.json ]; then
+            log_info "错误响应:"
+            cat /tmp/health_response.json
+        fi
+    fi
+    
+    # 测试根路径端点
+    log_info "测试根路径端点..."
+    test_total=$((test_total + 1))
+    local root_response=$(curl -s -w "%{http_code}" -o /tmp/root_response.json "$api_url/" 2>/dev/null)
+    local root_status_code="${root_response: -3}"
+    
+    if [ "$root_status_code" = "200" ]; then
+        log_success "✅ 根路径端点测试通过 (HTTP $root_status_code)"
+        if command -v python3 &> /dev/null && [ -f /tmp/root_response.json ]; then
+            log_info "响应内容:"
+            python3 -m json.tool /tmp/root_response.json 2>/dev/null | head -10
+        fi
+        test_passed=$((test_passed + 1))
+    else
+        log_error "❌ 根路径端点测试失败 (HTTP $root_status_code)"
+        if [ -f /tmp/root_response.json ]; then
+            log_info "错误响应:"
+            cat /tmp/root_response.json
+        fi
+    fi
+    
+    # 测试股票查询端点（带认证）
+    log_info "测试股票查询端点..."
+    test_total=$((test_total + 1))
+    local stock_response=$(curl -s -w "%{http_code}" -o /tmp/stock_response.json "$api_url/test-stock/600519?token=xue123" 2>/dev/null)
+    local stock_status_code="${stock_response: -3}"
+    
+    if [ "$stock_status_code" = "200" ]; then
+        log_success "✅ 股票查询端点测试通过 (HTTP $stock_status_code)"
+        if command -v python3 &> /dev/null && [ -f /tmp/stock_response.json ]; then
+            log_info "股票分析结果 (贵州茅台 600519):"
+            python3 -c "
+import json
+try:
+    with open('/tmp/stock_response.json', 'r') as f:
+        data = json.load(f)
+    if 'data' in data:
+        result = data['data']
+        print(f\"  股票代码: {result.get('stock_code', 'N/A')}\")
+        print(f\"  当前价格: {result.get('price', 'N/A')}\")
+        print(f\"  技术评分: {result.get('score', 'N/A')}\")
+        print(f\"  投资建议: {result.get('recommendation', 'N/A')}\")
+        print(f\"  RSI指标: {result.get('rsi', 'N/A')}\")
+except Exception as e:
+    print(f'解析响应失败: {e}')
+" 2>/dev/null
+        fi
+        test_passed=$((test_passed + 1))
+    else
+        log_error "❌ 股票查询端点测试失败 (HTTP $stock_status_code)"
+        if [ -f /tmp/stock_response.json ]; then
+            log_info "错误响应:"
+            cat /tmp/stock_response.json
+        fi
+    fi
+    
+    # 清理临时文件
+    rm -f /tmp/health_response.json /tmp/root_response.json /tmp/stock_response.json
+    
+    # 测试结果摘要
+    echo ""
+    log_info "📊 测试结果摘要:"
+    log_info "  通过测试: $test_passed/$test_total"
+    
+    if [ $test_passed -eq $test_total ]; then
+        log_success "🎉 所有端点测试通过！"
+    else
+        log_warning "⚠️  部分测试失败，请检查日志"
     fi
 }
 
