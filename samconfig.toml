@@ -21,11 +21,9 @@ capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
 s3_prefix = "stock-analysis-api"
-region = "cn-northwest-1"
-profile = "susermt"
-parameter_overrides = [
-    "Environment=prod"
-]
+parameter_overrides = "Environment=\"prod\" LogLevel=\"INFO\" MAShortPeriod=\"5\" MAMediumPeriod=\"20\" MALongPeriod=\"60\" RSIPeriod=\"14\""
+disable_rollback = true
+image_repositories = []
 
 [default.local_start_api]
 [default.local_start_api.parameters]

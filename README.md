@@ -1,16 +1,8 @@
 # 股票技术分析 Lambda API
 
-**作者：** RJ.Wang  
-**邮箱：** wangrenjun@gmail.com  
-**创建时间：** 2025-10-31
-
 ![项目预览](preview.png)
 
-基于 AWS Lambda 的无服务器股票技术分析 API 服务，提供多市场股票数据分析和技术指标计算功能。
-
-## 🚀 项目概述
-
-这是一个完全基于 AWS 云原生架构的股票技术分析系统，采用无服务器架构设计，支持实时股票数据获取、技术指标计算和智能投资建议。系统具有高可用性、自动扩缩容和按需付费的特点。
+基于 AWS Lambda 的无服务器股票技术分析 API，提供多市场股票数据分析和技术指标计算功能。
 
 ## ✨ 核心功能
 
@@ -148,17 +140,6 @@ Content-Type: application/json
 ```
 
 ## 🚀 部署指南
-### 🎯 推荐部署方法（经过验证）
-
-**一键部署脚本**（推荐）:
-```bash
-# 使用经过验证的一键部署脚本
-./scripts/deploy-verified.sh
-```
-
-**详细指南**: 参考 [经过验证的部署指南](docs/DEPLOYMENT_GUIDE_TESTED.md)
-
-### 🔧 手动部署方法
 
 
 ### 前置要求
@@ -202,12 +183,9 @@ cd lambda-stock-api
 
 #### 第二步：构建依赖包
 ```bash
-# 使用 Docker 构建 arm64 架构的依赖包
-./scripts/build-layer.sh
-
-# 或者使用 Make
+# 构建 Lambda Layer
 cd layers/dependencies
-make build
+./build-simple.sh
 ```
 
 #### 第三步：本地测试（可选）
@@ -225,8 +203,8 @@ curl http://localhost:3000/health
 ./scripts/deploy.sh
 
 # 或者手动部署
-sam build
-sam deploy --profile susermt --region cn-northwest-1
+sam build --profile susermt
+sam deploy --profile susermt
 ```
 
 #### 第五步：验证部署
@@ -341,37 +319,19 @@ aws logs tail "/aws/lambda/stock-analysis-api-stock-analysis" \
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
-## 📞 支持
+## � 文档
 
-如有问题或建议，请：
-- 提交 Issue
-- 发送邮件至 wangrenjun@gmail.com
-- 查看 [文档目录](docs/) 获取更多信息
+- [API 使用指南](docs/API_USAGE.md) - 详细的 API 使用说明
+- [部署指南](docs/DEPLOYMENT.md) - 完整的部署步骤
+- [环境变量配置](docs/ENVIRONMENT_VARIABLES.md) - 配置参数说明
+- [项目结构说明](PROJECT_STRUCTURE.md) - 详细的目录结构
 
-## 📁 项目结构
+## � 支目持
 
-详细的项目结构说明请参考 [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
-
-```
-Stock_lambda/
-├── src/                    # Lambda 函数源代码
-├── layers/dependencies/    # Lambda Layer 依赖包
-├── events/                 # API 测试事件
-├── scripts/                # 部署和构建脚本
-├── tests/                  # 功能测试
-├── docs/                   # 详细文档
-├── template.yaml           # SAM 基础设施模板
-└── README.md              # 项目说明（本文件）
-```
+如有问题或建议，请发送邮件至 wangrenjun@gmail.com
 
 ---
 
-**⚡ 基于 AWS 无服务器架构，让股票分析更简单、更高效！**
+**⚡ 基于 AWS 无服务器架构的股票技术分析 API**
 
----
-
-**作者：** RJ.Wang  
-**邮箱：** wangrenjun@gmail.com  
-**文档版本：** v1.0  
-**最后更新：** 2025-10-31  
-**适用于：** AWS Lambda, Python, 股票分析
+*作者: RJ.Wang | 邮箱: wangrenjun@gmail.com | 版本: v1.0*
