@@ -253,7 +253,7 @@ wait_for_stack_deletion() {
             exit 1
         fi
         
-        log_info "堆栈状态: $stack_status，继续等待... ($wait_time/$max_wait 秒)"
+        log_info "堆栈状态: $stack_status, 继续等待... ($wait_time/$max_wait 秒)"
         sleep $check_interval
         wait_time=$((wait_time + check_interval))
     done
