@@ -145,6 +145,24 @@ Error: Template file not found
 ```
 **解决方案**: 使用 `--template template.yaml` 明确指定模板路径
 
+### 问题 4: 部署脚本执行目录错误 ⚠️ 新增
+```
+Error: template.yaml 文件不存在
+Error: zsh: no such file or directory: ./scripts/deploy-verified.sh
+```
+**原因**: 在错误的目录执行部署脚本
+**解决方案**: 
+- 部署脚本必须在项目根目录执行
+- 确保当前目录包含 `template.yaml` 文件
+- 正确的执行方式:
+```bash
+# 进入项目根目录
+cd /path/to/Stock_lambda
+
+# 执行部署脚本
+./scripts/deploy-verified.sh
+```
+
 ## 📋 完整的一键部署脚本
 
 创建 `scripts/deploy-verified.sh`:

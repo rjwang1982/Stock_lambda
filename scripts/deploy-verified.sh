@@ -38,6 +38,18 @@ AWS_PROFILE="susermt"
 
 log_info "🚀 开始经过验证的部署流程..."
 
+# 0. 检查执行目录
+log_info "📍 检查执行目录..."
+if [ ! -f "template.yaml" ]; then
+    log_error "❌ 未在项目根目录执行脚本"
+    log_error "当前目录: $(pwd)"
+    log_error "请切换到项目根目录后重新执行:"
+    log_error "  cd /path/to/Stock_lambda"
+    log_error "  ./scripts/deploy-verified.sh"
+    exit 1
+fi
+log_success "✅ 执行目录正确: $(pwd)"
+
 # 1. 检查前置条件
 log_info "📋 检查前置条件..."
 
@@ -56,11 +68,15 @@ fi
 # 检查必要文件
 if [ ! -f "template.yaml" ]; then
     log_error "template.yaml 文件不存在"
+    log_error "请确保在项目根目录执行此脚本"
+    log_error "当前目录: $(pwd)"
+    log_error "正确用法: cd /path/to/Stock_lambda && ./scripts/deploy-verified.sh"
     exit 1
 fi
 
 if [ ! -f "layers/dependencies/Dockerfile" ]; then
     log_error "layers/dependencies/Dockerfile 文件不存在"
+    log_error "请确保在项目根目录执行此脚本"
     exit 1
 fi
 
