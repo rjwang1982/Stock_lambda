@@ -64,6 +64,7 @@ layers/dependencies/=*
 # 开发过程中的备份文件
 *.bak
 *.old
+*.backup
 
 # 项目清理后的额外忽略规则
 .pytest_cache/

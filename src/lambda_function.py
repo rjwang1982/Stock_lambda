@@ -131,7 +131,7 @@ def handle_root(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'status': 'ok',
         'message': '股票分析API正在运行',
         'service': '股票技术分析 Lambda API',
-        'version': '1.0.0',
+        'version': '1.0.1',
         'endpoints': {
             'health': 'GET /health',
             'test': 'GET /test-stock/{stock_code}?token=your_token',

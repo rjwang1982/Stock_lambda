@@ -38,9 +38,11 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STACK_NAME="stock-analysis-api"
 AWS_REGION="cn-northwest-1"
 AWS_PROFILE="susermt"
-ENVIRONMENT="dev"
+ENVIRONMENT="prod"
 
 # 解析命令行参数
+FORCE_CLEANUP=false
+
 while [[ $# -gt 0 ]]; do
     case $1 in
         --stack-name)
@@ -55,9 +57,9 @@ while [[ $# -gt 0 ]]; do
             AWS_PROFILE="$2"
             shift 2
             ;;
-        --environment)
-            ENVIRONMENT="$2"
-            shift 2
+        --force-cleanup)
+            FORCE_CLEANUP=true
+            shift
             ;;
         --help)
             echo "用法: $0 [选项]"
@@ -65,7 +67,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --stack-name NAME    CloudFormation 堆栈名称 (默认: stock-analysis-api)"
             echo "  --region REGION      AWS 区域 (默认: cn-northwest-1)"
             echo "  --profile PROFILE    AWS 配置文件 (默认: susermt)"
-            echo "  --environment ENV    环境名称 (默认: dev)"
+            echo "  --force-cleanup     强制清理现有资源后重新部署"
             echo "  --help              显示此帮助信息"
             exit 0
             ;;
@@ -133,7 +135,12 @@ build_project() {
     log_info "构建 Lambda Layer..."
     cd layers/dependencies
     if [ -f "build-simple.sh" ]; then
+        chmod +x build-simple.sh
         ./build-simple.sh
+        if [ $? -ne 0 ]; then
+            log_error "Lambda Layer 构建失败"
+            exit 1
+        fi
     else
         log_warning "未找到 build-simple.sh，跳过 Layer 构建"
     fi
@@ -143,11 +150,16 @@ build_project() {
     log_info "使用 SAM 构建应用..."
     sam build --profile "$AWS_PROFILE"
     
-    # 手动复制 Layer（如果需要）
-    if [ -d "layers/dependencies/python" ] && [ ! -d ".aws-sam/build/StockAnalysisLayer/python" ]; then
+    # 确保 Layer 正确复制到构建目录
+    if [ -d "layers/dependencies/python" ]; then
         log_info "复制 Lambda Layer 到构建目录..."
         mkdir -p .aws-sam/build/StockAnalysisLayer
+        rm -rf .aws-sam/build/StockAnalysisLayer/python
         cp -r layers/dependencies/python .aws-sam/build/StockAnalysisLayer/
+        log_success "Layer 复制完成"
+    else
+        log_error "Lambda Layer 不存在，请先构建 Layer"
+        exit 1
     fi
     
     log_success "项目构建完成"
@@ -163,6 +175,91 @@ validate_template() {
         log_error "SAM 模板验证失败"
         exit 1
     fi
+}
+
+# 检查并清理现有资源
+check_and_cleanup_existing_resources() {
+    log_info "检查现有资源..."
+    
+    # 检查是否存在同名堆栈
+    if aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$AWS_REGION" --profile "$AWS_PROFILE" &> /dev/null; then
+        local stack_status=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$AWS_REGION" --profile "$AWS_PROFILE" --query 'Stacks[0].StackStatus' --output text)
+        log_warning "发现现有堆栈: $STACK_NAME (状态: $stack_status)"
+        
+        # 如果指定了强制清理，直接清理
+        if [ "$FORCE_CLEANUP" = true ]; then
+            log_warning "强制清理模式，删除现有堆栈"
+            cleanup_existing_stack
+            return
+        fi
+        
+        # 如果堆栈状态异常，先清理
+        case "$stack_status" in
+            "ROLLBACK_COMPLETE"|"CREATE_FAILED"|"DELETE_FAILED"|"UPDATE_ROLLBACK_COMPLETE")
+                log_warning "堆栈状态异常，需要清理后重新部署"
+                cleanup_existing_stack
+                ;;
+            "DELETE_IN_PROGRESS")
+                log_info "堆栈正在删除中，等待删除完成..."
+                wait_for_stack_deletion
+                ;;
+            "CREATE_IN_PROGRESS"|"UPDATE_IN_PROGRESS")
+                log_error "堆栈正在操作中，请等待完成后再试"
+                exit 1
+                ;;
+            *)
+                log_info "堆栈状态正常，将进行更新部署"
+                ;;
+        esac
+    else
+        log_info "未发现现有堆栈，将进行全新部署"
+    fi
+}
+
+# 清理现有堆栈
+cleanup_existing_stack() {
+    log_info "开始清理现有堆栈: $STACK_NAME"
+    
+    # 删除堆栈
+    aws cloudformation delete-stack --stack-name "$STACK_NAME" --region "$AWS_REGION" --profile "$AWS_PROFILE"
+    
+    if [ $? -eq 0 ]; then
+        log_success "堆栈删除命令已发送"
+        wait_for_stack_deletion
+    else
+        log_error "堆栈删除失败"
+        exit 1
+    fi
+}
+
+# 等待堆栈删除完成
+wait_for_stack_deletion() {
+    log_info "等待堆栈删除完成..."
+    
+    local max_wait=600  # 最大等待10分钟
+    local wait_time=0
+    local check_interval=15
+    
+    while [ $wait_time -lt $max_wait ]; do
+        if ! aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$AWS_REGION" --profile "$AWS_PROFILE" &> /dev/null; then
+            log_success "堆栈删除完成"
+            return 0
+        fi
+        
+        local stack_status=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$AWS_REGION" --profile "$AWS_PROFILE" --query 'Stacks[0].StackStatus' --output text 2>/dev/null)
+        
+        if [ "$stack_status" = "DELETE_FAILED" ]; then
+            log_error "堆栈删除失败，请手动检查并清理资源"
+            exit 1
+        fi
+        
+        log_info "堆栈状态: $stack_status，继续等待... ($wait_time/$max_wait 秒)"
+        sleep $check_interval
+        wait_time=$((wait_time + check_interval))
+    done
+    
+    log_error "等待堆栈删除超时"
+    exit 1
 }
 
 # 部署应用
@@ -186,7 +283,7 @@ deploy_application() {
         --parameter-overrides \
             Environment="$ENVIRONMENT" \
             LogLevel="INFO" \
-        --capabilities CAPABILITY_IAM \
+        --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
         --no-confirm-changeset \
         --no-fail-on-empty-changeset
     
@@ -207,7 +304,7 @@ get_deployment_info() {
         --stack-name "$STACK_NAME" \
         --region "$AWS_REGION" \
         --profile "$AWS_PROFILE" \
-        --query 'Stacks[0].Outputs[?OutputKey==`ApiGatewayUrl`].OutputValue' \
+        --query 'Stacks[0].Outputs[?OutputKey==`StockAnalysisApiUrl`].OutputValue' \
         --output text 2>/dev/null)
     
     if [ -n "$api_url" ] && [ "$api_url" != "None" ]; then
@@ -216,18 +313,19 @@ get_deployment_info() {
         log_warning "未找到 API Gateway URL"
     fi
     
-    # 获取 Lambda 函数名
-    local function_name=$(aws cloudformation describe-stacks \
+    # 获取 Lambda 函数 ARN
+    local function_arn=$(aws cloudformation describe-stacks \
         --stack-name "$STACK_NAME" \
         --region "$AWS_REGION" \
         --profile "$AWS_PROFILE" \
-        --query 'Stacks[0].Outputs[?OutputKey==`FunctionName`].OutputValue' \
+        --query 'Stacks[0].Outputs[?OutputKey==`StockAnalysisFunctionArn`].OutputValue' \
         --output text 2>/dev/null)
     
-    if [ -n "$function_name" ] && [ "$function_name" != "None" ]; then
+    if [ -n "$function_arn" ] && [ "$function_arn" != "None" ]; then
+        local function_name=$(echo "$function_arn" | awk -F: '{print $NF}')
         log_success "Lambda 函数名: $function_name"
     else
-        log_warning "未找到 Lambda 函数名"
+        log_warning "未找到 Lambda 函数 ARN"
     fi
 }
 
@@ -240,7 +338,7 @@ run_post_deploy_tests() {
         --stack-name "$STACK_NAME" \
         --region "$AWS_REGION" \
         --profile "$AWS_PROFILE" \
-        --query 'Stacks[0].Outputs[?OutputKey==`ApiGatewayUrl`].OutputValue' \
+        --query 'Stacks[0].Outputs[?OutputKey==`StockAnalysisApiUrl`].OutputValue' \
         --output text 2>/dev/null)
     
     if [ -n "$api_url" ] && [ "$api_url" != "None" ]; then
@@ -278,6 +376,7 @@ main() {
     # 执行部署步骤
     check_dependencies
     validate_aws_config
+    check_and_cleanup_existing_resources
     build_project
     validate_template
     deploy_application

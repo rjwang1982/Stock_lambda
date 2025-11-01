@@ -47,7 +47,87 @@
 
 #### 3. **AWS Lambda Layers**
 - **依赖管理**: pandas, akshare, numpy 等数据分析库
-- **架构优化**: arm64 原生构建
+- **架构优化**: arm64 原生构建，使用 Docker 确保兼容性
+
+## 🚀 快速开始
+
+### 前置要求
+
+- **Docker**: 用于构建 Lambda Layer
+- **AWS CLI**: 配置 AWS 凭证
+- **SAM CLI**: AWS Serverless Application Model
+- **Python 3.11+**: 本地开发环境
+
+### 一键部署
+
+```bash
+# 克隆项目
+git clone <repository-url>
+cd Stock_lambda
+
+# 使用 Makefile 部署（推荐）
+make deploy
+```
+
+### 使用 Makefile（推荐）
+
+```bash
+# 查看所有可用命令
+make help
+
+# 构建 Lambda Layer
+make build-layer
+
+# 部署应用
+make deploy
+
+# 清理后重新部署
+make deploy-clean
+
+# 测试 API
+make test
+
+# 查看日志
+make logs
+
+# 查看状态
+make status
+```
+
+### 手动部署步骤
+
+#### 1. 构建 Lambda Layer
+
+```bash
+cd layers/dependencies
+chmod +x build-simple.sh
+./build-simple.sh
+```
+
+#### 2. 部署应用
+
+```bash
+# 基本部署（默认生产环境）
+./scripts/deploy.sh
+
+# 强制清理后部署
+./scripts/deploy.sh --force-cleanup
+```
+
+### 构建说明
+
+本项目使用 **Docker 构建** 来确保 Lambda Layer 的架构兼容性：
+
+- **本地环境**: macOS/Linux/Windows
+- **目标环境**: AWS Lambda (Linux arm64)
+- **构建方式**: Docker 容器内构建，确保二进制兼容性
+
+#### Docker 构建流程
+
+1. 使用 AWS Lambda 官方基础镜像 (`public.ecr.aws/lambda/python:3.13-arm64`)
+2. 在容器内安装 Python 依赖包
+3. 提取构建好的依赖包到本地
+4. 打包为 Lambda Layer
 - **版本管理**: 支持 Layer 版本控制
 
 #### 4. **Amazon CloudWatch**

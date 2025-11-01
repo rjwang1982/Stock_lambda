@@ -1,9 +1,4 @@
-# Lambda Layer 依赖包（通过 Docker 构建）
-# 这些包会被安装到 Lambda Layer 中
-pandas>=2.1.0
-akshare>=1.12.0
-numpy>=1.24.0
-
 # Lambda 函数直接依赖（轻量级）
+# 重量级依赖（pandas, akshare, numpy）在 Lambda Layer 中提供
 # 这些包会直接打包到 Lambda 函数中
 requests>=2.31.0
