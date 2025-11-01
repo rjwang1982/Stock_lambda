@@ -9,6 +9,10 @@
 
 set -e  # 遇到错误立即退出
 
+# 确保在正确的目录运行
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
 # 颜色定义
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -134,10 +138,10 @@ echo ""
 echo "🔧 下一步:"
 echo "  运行部署脚本: ./scripts/deploy.sh"
 
-# 清理 Docker 镜像（可选）
-read -p "是否清理构建用的 Docker 镜像？(y/N): " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    docker rmi lambda-layer-builder &> /dev/null
-    log_info "Docker 镜像已清理"
+# 自动清理 Docker 镜像
+log_info "清理构建用的 Docker 镜像..."
+if docker rmi lambda-layer-builder &> /dev/null; then
+    log_success "Docker 镜像已清理"
+else
+    log_warning "Docker 镜像清理失败或镜像不存在"
 fi
