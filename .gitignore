@@ -64,3 +64,20 @@ layers/dependencies/=*
 # 开发过程中的备份文件
 *.bak
 *.old
+
+# 项目清理后的额外忽略规则
+.pytest_cache/
+*.pyc
+__pycache__/
+.coverage
+htmlcov/
+
+# 编辑器临时文件
+*~
+.#*
+\#*#
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini

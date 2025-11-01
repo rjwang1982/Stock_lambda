@@ -332,6 +332,22 @@ aws logs tail "/aws/lambda/stock-analysis-api-stock-analysis" \
 - 发送邮件至 wangrenjun@gmail.com
 - 查看 [文档目录](docs/) 获取更多信息
 
+## 📁 项目结构
+
+详细的项目结构说明请参考 [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+
+```
+Stock_lambda/
+├── src/                    # Lambda 函数源代码
+├── layers/dependencies/    # Lambda Layer 依赖包
+├── events/                 # API 测试事件
+├── scripts/                # 部署和构建脚本
+├── tests/                  # 功能测试
+├── docs/                   # 详细文档
+├── template.yaml           # SAM 基础设施模板
+└── README.md              # 项目说明（本文件）
+```
+
 ---
 
 **⚡ 基于 AWS 无服务器架构，让股票分析更简单、更高效！**
