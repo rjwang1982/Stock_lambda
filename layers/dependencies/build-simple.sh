@@ -132,11 +132,12 @@ echo "✅ Lambda Layer 构建完成！"
 echo "📋 构建摘要:"
 echo "  Layer 大小: $LAYER_SIZE"
 echo "  包含的主要依赖:"
-ls -1 python/ | grep -E '^(numpy|pandas|akshare|requests)$' | sed 's/^/    - /'
+ls -1 python/ | grep -E '^(numpy|pandas|akshare|requests)' | sed 's/^/    - /'
 
 echo ""
 echo "🔧 下一步:"
-echo "  运行部署脚本: ./scripts/deploy.sh"
+echo "  使用 make deploy 进行部署"
+echo "  或使用 make dev 进行完整开发流程"
 
 # 自动清理 Docker 镜像
 log_info "清理构建用的 Docker 镜像..."

@@ -1,6 +1,5 @@
-# AWS SAM
+# AWS SAM 构建产物
 .aws-sam/
-# samconfig.toml - 保留配置文件在版本控制中
 
 # Python
 __pycache__/
@@ -36,18 +35,19 @@ ENV/
 *.swp
 *.swo
 
-# OS
+# 操作系统文件
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Logs
+# 日志文件
 *.log
 
 # Lambda Layer 构建产物
 layers/dependencies/python/
 layers/dependencies/*.zip
 
-# 测试
+# 测试相关
 .pytest_cache/
 .coverage
 htmlcov/
@@ -55,45 +55,25 @@ htmlcov/
 # 临时文件
 *.tmp
 *.temp
-debug_event.json
-*_event.json
-
-# Layer 构建产物版本文件
-layers/dependencies/=*
-
-# 开发过程中的备份文件
 *.bak
 *.old
 *.backup
-
-# 项目清理后的额外忽略规则
-.pytest_cache/
-*.pyc
-__pycache__/
-.coverage
-htmlcov/
+debug_event.json
+*_event.json
 
 # 编辑器临时文件
 *~
 .#*
 \#*#
 
-# 系统文件
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Kiro 相关文件
+# Kiro IDE 缓存
 .kiro/cache/
 .kiro/temp/
 .kiro/logs/
 .kiro/**/*.tmp
 .kiro/**/*.log
-.kiro/steering/=*
-.kiro/steering/.aws-sam/
-.kiro/steering/python/
 
-# 图片和媒体文件
+# 媒体文件（保留项目预览图）
 *.png
 *.jpg
 *.jpeg
@@ -102,8 +82,6 @@ desktop.ini
 *.svg
 *.ico
 *.webp
-
-# 但保留项目预览图片
 !preview.png
 
 # 截图文件

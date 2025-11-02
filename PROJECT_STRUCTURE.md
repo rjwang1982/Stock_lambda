@@ -1,6 +1,6 @@
 # 项目结构说明
 
-## 📁 目录结构
+## 📁 最终目录结构
 
 ```
 Stock_lambda/
@@ -15,18 +15,25 @@ Stock_lambda/
 ├── layers/dependencies/          # Lambda Layer 依赖包
 │   ├── requirements-layer.txt    # Layer 依赖清单
 │   ├── Dockerfile               # Docker 构建配置
-│   ├── Makefile                 # 构建脚本
-│   └── build-simple.sh          # 简化构建脚本
-├── events/                      # API Gateway 测试事件
-├── scripts/                     # 部署和测试脚本
-│   ├── deploy.sh                # 主要部署脚本
-│   └── test-deployment.sh       # 部署测试脚本
-├── tests/                       # 单元测试
+│   └── build-simple.sh          # 构建脚本
 ├── docs/                        # 详细文档
+│   ├── API_USAGE.md             # API 使用指南
+│   ├── DEPLOYMENT.md            # 部署指南
+│   └── ENVIRONMENT_VARIABLES.md # 环境变量配置
+├── scripts/                     # 部署和测试脚本
+│   ├── deploy-advanced.sh       # 高级部署脚本
+│   └── test-deployment.sh       # 部署测试脚本
+├── events/                      # API Gateway 测试事件
+├── tests/                       # 单元测试
 ├── template.yaml                # SAM 基础设施模板
 ├── samconfig.toml               # SAM 部署配置
-├── Makefile                     # 构建工具
-└── requirements.txt             # 函数级依赖
+├── Makefile                     # 统一构建工具
+├── requirements.txt             # 函数级依赖
+├── CHANGELOG.md                 # 更新日志
+├── MAINTENANCE.md               # 维护指南
+├── LICENSE                      # 许可证
+├── preview.png                  # 项目预览图
+└── README.md                    # 项目说明
 ```
 
 ## 🔧 核心模块职责

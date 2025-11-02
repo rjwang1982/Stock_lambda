@@ -39,10 +39,7 @@ def setup_logging(level: str = None) -> logging.Logger:
         force=True
     )
     
-    logger = logging.getLogger(__name__)
-    logger.info(f"日志级别设置为: {level}")
-    
-    return logger
+    return logging.getLogger(__name__)
 
 
 def parse_json_body(body: Optional[str]) -> Dict[str, Any]:

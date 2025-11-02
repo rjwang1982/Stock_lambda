@@ -117,11 +117,11 @@ docker ps
 # 进入项目目录
 cd lambda-stock-api
 
-# 执行部署脚本
-./scripts/deploy.sh
+# 执行部署（推荐使用 Makefile）
+make deploy
 
-# 或者指定参数
-./scripts/deploy.sh \
+# 或者使用高级部署脚本
+./scripts/deploy-advanced.sh \
   --stack-name my-stock-api \
   --environment prod \
   --region cn-northwest-1 \
