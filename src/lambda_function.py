@@ -181,6 +181,9 @@ def handle_test_stock_get(event: Dict[str, Any], context: Any) -> Dict[str, Any]
     if not stock_code:
         raise ValidationError("缺少股票代码参数")
     
+    # 清理股票代码前后空格
+    stock_code = stock_code.strip()
+    
     # 提取查询参数
     query_params = extract_query_parameters(event)
     market_type = query_params.get('market', query_params.get('market_type', 'A')).upper()
@@ -243,6 +246,9 @@ def handle_analyze_stock_post(event: Dict[str, Any], context: Any) -> Dict[str, 
     stock_code = request_data.get('stock_code')
     if not stock_code:
         raise ValidationError("缺少必需参数: stock_code")
+    
+    # 清理股票代码前后空格
+    stock_code = stock_code.strip()
     
     market_type = request_data.get('market_type', 'A')
     start_date = request_data.get('start_date')
